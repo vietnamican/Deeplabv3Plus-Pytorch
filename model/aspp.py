@@ -27,7 +27,6 @@ class ASPP(nn.Module):
         super(ASPP, self).__init__()
 
         dilations = [1, 6, 12, 18]
-
         self.aspp0 = _ASPPModule(in_channels=in_channels, out_channels=out_channels, kernel_size=1,
                                  padding=0, dilation=dilations[0])
         self.aspp1 = _ASPPModule(in_channels=in_channels, out_channels=out_channels, kernel_size=3,
@@ -42,6 +41,8 @@ class ASPP(nn.Module):
         self.relu = ReLU()
         self.batchnorm = BatchNorm2d(out_channels)
 
+        self._init_weight()
+
     def forward(self, x):
         x0 = self.aspp0(x)
         x1 = self.aspp1(x)
@@ -53,9 +54,17 @@ class ASPP(nn.Module):
         x = self.relu(x)
         x = self.batchnorm(x)
 
+    def _init_weight(self):
+        for m in self.modules():
+            if isinstance(m, Conv2d):
+                nn.init.kaiming_normal_(m.weight, nonlinearity='relu')
+            if isinstance(m, BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.fill_(0)
+
+
 if __name__ == "__main__":
     model = ASPP(64, 256)
     model.to('cuda')
-    x = torch.Tensor(1, 64, 320, 320).cuda()
+    x = torch.Tensor(1, 64, 32, 32).cuda()
     summary(model, x)
-
