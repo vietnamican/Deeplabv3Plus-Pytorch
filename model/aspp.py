@@ -1,0 +1,61 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.nn import Conv2d, ReLU, BatchNorm2d
+from torchsummaryX import summary
+
+
+class _ASPPModule(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, padding=1, dilation=1):
+        super(_ASPPModule, self).__init__()
+
+        self.atrous_conv = Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=1,
+                                  padding=padding, dilation=dilation, groups=1, bias=True)
+        self.relu = ReLU()
+        self.batchnorm = BatchNorm2d(out_channels)
+
+    def forward(self, x):
+        x = self.atrous_conv(x)
+        x = self.relu(x)
+        x = self.batchnorm(x)
+
+        return x
+
+
+class ASPP(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(ASPP, self).__init__()
+
+        dilations = [1, 6, 12, 18]
+
+        self.aspp0 = _ASPPModule(in_channels=in_channels, out_channels=out_channels, kernel_size=1,
+                                 padding=0, dilation=dilations[0])
+        self.aspp1 = _ASPPModule(in_channels=in_channels, out_channels=out_channels, kernel_size=3,
+                                 padding=dilations[1], dilation=dilations[1])
+        self.aspp2 = _ASPPModule(in_channels=in_channels, out_channels=out_channels, kernel_size=3,
+                                 padding=dilations[2], dilation=dilations[2])
+        self.aspp3 = _ASPPModule(in_channels=in_channels, out_channels=out_channels, kernel_size=3,
+                                 padding=dilations[3], dilation=dilations[3])
+
+        self.conv = Conv2d(out_channels * 4, out_channels, kernel_size=3, stride=1, padding=1, dilation=1, groups=1,
+                           bias=True)
+        self.relu = ReLU()
+        self.batchnorm = BatchNorm2d(out_channels)
+
+    def forward(self, x):
+        x0 = self.aspp0(x)
+        x1 = self.aspp1(x)
+        x2 = self.aspp1(x)
+        x3 = self.aspp1(x)
+
+        x = torch.cat((x0, x1, x2, x3), dim=1)
+        x = self.conv(x)
+        x = self.relu(x)
+        x = self.batchnorm(x)
+
+if __name__ == "__main__":
+    model = ASPP(64, 256)
+    model.to('cuda')
+    x = torch.Tensor(1, 64, 320, 320).cuda()
+    summary(model, x)
+
