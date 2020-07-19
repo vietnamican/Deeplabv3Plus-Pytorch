@@ -5,14 +5,28 @@ import torch.optim as optim
 from torch.nn import Conv2d, ReLU, BatchNorm2d
 from torchsummaryX import summary
 
+from .utils import ConvReluBatchnorm, Block
+
 
 class _Entry(nn.Module):
     def __init__(self):
         super(_Entry, self).__init__()
 
         self._init_weight()
+        # block 1
+        self.block1 = nn.Sequential(ConvReluBatchnorm(3, 32, 3, 2, 1),
+                                    ConvReluBatchnorm(32, 64, 3, 1, 1)
+                                    )
+        self.block2 = Block(64, 128, 3, 2, 1)
+        self.block3 = Block(128, 256, 3, 2, 1)
+        self.block4 = Block(256, 728, 3, 2, 1)
 
     def forward(self, x):
+        x = self.block1(x)
+        x = self.block2(x)
+        x = self.block3(x)
+        x = self.block4(x)
+
         return x
 
     def _init_weight(self):

@@ -18,8 +18,7 @@ class ConvReluBatchnorm(nn.Module):
         else:
             self.conv = Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size,
                                stride=stride, padding=padding, dilation=dilation, bias=bias)
-        self.conv = Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size,
-                           stride=stride, padding=padding, dilation=dilation, bias=bias)
+
         self.with_relu = False
         if with_relu:
             self.with_relu = True

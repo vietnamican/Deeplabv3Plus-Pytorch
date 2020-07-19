@@ -5,7 +5,7 @@ import torch.optim as optim
 from torch.nn import Conv2d, ReLU, BatchNorm2d
 from torchsummaryX import summary
 
-from utils import ConvReluBatchnorm
+from .utils import ConvReluBatchnorm
 
 
 class _ASPPModule(nn.Module):
@@ -14,7 +14,7 @@ class _ASPPModule(nn.Module):
 
         self.crb = ConvReluBatchnorm(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size,
                                            stride=1, padding=padding, dilation=dilation, bias=True, with_batchnorm=True,
-                                           with_relu=True)
+                                           with_relu=True, with_depthwise=True)
 
     def forward(self, x):
         x = self.crb(x)
@@ -46,13 +46,15 @@ class ASPP(nn.Module):
     def forward(self, x):
         x0 = self.aspp0(x)
         x1 = self.aspp1(x)
-        x2 = self.aspp1(x)
-        x3 = self.aspp1(x)
+        x2 = self.aspp2(x)
+        x3 = self.aspp3(x)
 
         x = torch.cat((x0, x1, x2, x3), dim=1)
         x = self.conv(x)
         x = self.relu(x)
         x = self.batchnorm(x)
+
+        return x
 
     def _init_weight(self):
         for m in self.modules():

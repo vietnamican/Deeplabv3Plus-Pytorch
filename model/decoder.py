@@ -5,7 +5,7 @@ import torch.optim as optim
 from torch.nn import Conv2d, ReLU, BatchNorm2d
 from torchsummaryX import summary
 
-from utils import ConvReluBatchnorm
+from .utils import ConvReluBatchnorm
 
 
 class Decoder(nn.Module):
