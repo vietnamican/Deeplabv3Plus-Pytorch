@@ -24,10 +24,11 @@ class _Entry(nn.Module):
     def forward(self, x):
         x = self.block1(x)
         x = self.block2(x)
+        low_level_feature = x
         x = self.block3(x)
         x = self.block4(x)
 
-        return x
+        return x, low_level_feature
 
     def _init_weight(self):
         for m in self.modules():
@@ -131,11 +132,11 @@ class Encoder(nn.Module):
         self._init_weight()
 
     def forward(self, x):
-        x = self.entry(x)
+        x, low_level_feature = self.entry(x)
         x = self.middle(x)
         x = self.exit(x)
 
-        return x
+        return x, low_level_feature
 
     def _init_weight(self):
         for m in self.modules():

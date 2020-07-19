@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.nn import Conv2d, ReLU, BatchNorm2d
+from torch.nn import Conv2d, ReLU, BatchNorm2d, Dropout
 from torchsummaryX import summary
 
 from .utils import ConvReluBatchnorm

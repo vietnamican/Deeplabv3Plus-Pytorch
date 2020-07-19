@@ -9,10 +9,10 @@ from .utils import ConvReluBatchnorm
 
 
 class Decoder(nn.Module):
-    def __init__(self, in_channels, num_classes):
+    def __init__(self, low_level_in_channels, num_classes):
         super(Decoder, self).__init__()
 
-        self.conv_res = Conv2d(in_channels=in_channels, out_channels=48, kernel_size=1)
+        self.conv_res = Conv2d(in_channels=low_level_in_channels, out_channels=48, kernel_size=1)
         self.relu_res = ReLU()
         self.batchnorm_res = BatchNorm2d(48)
         self.last_conv = nn.Sequential(ConvReluBatchnorm(304, 256, 3, 1, 1, bias=False),
@@ -26,7 +26,7 @@ class Decoder(nn.Module):
         low_level_feature = self.relu_res(low_level_feature)
         low_level_feature = self.batchnorm_res(low_level_feature)
 
-        x = F.interpolate(x, low_level_feature.shape[2:], mode='bilinear', align_corners=True)
+        x = F.interpolate(x, low_level_feature.shape[-2:], mode='bilinear', align_corners=True)
         x = torch.cat((x, low_level_feature), dim=1)
         x = self.last_conv(x)
 
