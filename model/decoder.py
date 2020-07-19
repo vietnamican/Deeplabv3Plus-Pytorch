@@ -5,6 +5,8 @@ import torch.optim as optim
 from torch.nn import Conv2d, ReLU, BatchNorm2d
 from torchsummaryX import summary
 
+from utils import ConvReluBatchnorm
+
 
 class Decoder(nn.Module):
     def __init__(self, in_channels, num_classes):
@@ -13,13 +15,8 @@ class Decoder(nn.Module):
         self.conv_res = Conv2d(in_channels=in_channels, out_channels=48, kernel_size=1)
         self.relu_res = ReLU()
         self.batchnorm_res = BatchNorm2d(48)
-
-        self.last_conv = nn.Sequential(Conv2d(304, 256, kernel_size=3, stride=1, padding=1, bias=False),
-                                       ReLU(),
-                                       BatchNorm2d(256),
-                                       Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
-                                       ReLU(),
-                                       BatchNorm2d(256),
+        self.last_conv = nn.Sequential(ConvReluBatchnorm(304, 256, 3, 1, 1, bias=False),
+                                       ConvReluBatchnorm(256, 256, 3, 1, 1, bias=False),
                                        Conv2d(256, num_classes, kernel_size=1, stride=1)
                                        )
         self._init_weight()
@@ -42,6 +39,7 @@ class Decoder(nn.Module):
             if isinstance(m, BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.fill_(0)
+
 
 if __name__ == "__main__":
     model = Decoder(256, 20)
