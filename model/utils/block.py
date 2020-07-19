@@ -9,13 +9,21 @@ from . import ConvReluBatchnorm, Depthwise
 
 
 class Block(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, with_depthwise=True):
+    def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, with_depthwise=True,
+                 grow_first=True):
         super(Block, self).__init__()
 
-        self.crb1 = ConvReluBatchnorm(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size,
-                                      stride=1, padding=padding, with_depthwise=with_depthwise)
-        self.crb2 = ConvReluBatchnorm(in_channels=out_channels, out_channels=out_channels, kernel_size=kernel_size,
-                                      stride=1, padding=padding, with_depthwise=with_depthwise)
+        if grow_first:
+            self.crb1 = ConvReluBatchnorm(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size,
+                                          stride=1, padding=padding, with_depthwise=with_depthwise)
+            self.crb2 = ConvReluBatchnorm(in_channels=out_channels, out_channels=out_channels, kernel_size=kernel_size,
+                                          stride=1, padding=padding, with_depthwise=with_depthwise)
+        else:
+            self.crb1 = ConvReluBatchnorm(in_channels=in_channels, out_channels=in_channels, kernel_size=kernel_size,
+                                          stride=1, padding=padding, with_depthwise=with_depthwise)
+            self.crb2 = ConvReluBatchnorm(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size,
+                                          stride=1, padding=padding, with_depthwise=with_depthwise)
+
         if with_depthwise:
             self.conv = Depthwise(in_channels=out_channels, out_channels=out_channels, kernel_size=kernel_size,
                                   stride=stride, padding=padding)

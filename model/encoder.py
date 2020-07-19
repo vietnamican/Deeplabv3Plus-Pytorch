@@ -42,22 +42,22 @@ class _Middle(nn.Module):
     def __init__(self):
         super(_Middle, self).__init__()
 
-        self.block1 = Block(728,728)
-        self.block2 = Block(728,728)
-        self.block3 = Block(728,728)
-        self.block4 = Block(728,728)
-        self.block5 = Block(728,728)
-        self.block6 = Block(728,728)
-        self.block7 = Block(728,728)
-        self.block8 = Block(728,728)
-        self.block9 = Block(728,728)
-        self.block10 = Block(728,728)
-        self.block11 = Block(728,728)
-        self.block12 = Block(728,728)
-        self.block13 = Block(728,728)
-        self.block14 = Block(728,728)
-        self.block15 = Block(728,728)
-        self.block16 = Block(728,728)
+        self.block1 = Block(728, 728)
+        self.block2 = Block(728, 728)
+        self.block3 = Block(728, 728)
+        self.block4 = Block(728, 728)
+        self.block5 = Block(728, 728)
+        self.block6 = Block(728, 728)
+        self.block7 = Block(728, 728)
+        self.block8 = Block(728, 728)
+        self.block9 = Block(728, 728)
+        self.block10 = Block(728, 728)
+        self.block11 = Block(728, 728)
+        self.block12 = Block(728, 728)
+        self.block13 = Block(728, 728)
+        self.block14 = Block(728, 728)
+        self.block15 = Block(728, 728)
+        self.block16 = Block(728, 728)
 
         self._init_weight()
 
@@ -95,9 +95,20 @@ class _Exit(nn.Module):
     def __init__(self):
         super(_Exit, self).__init__()
 
+        self.block1 = Block(728, 1024, grow_first=False)
+        self.conv1 = ConvReluBatchnorm(1024, 1536)
+        self.conv2 = ConvReluBatchnorm(1536, 1536)
+        self.conv3 = ConvReluBatchnorm(1536, 2048)
+
         self._init_weight()
 
     def forward(self, x):
+
+        x = self.block1(x)
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+
         return x
 
     def _init_weight(self):
