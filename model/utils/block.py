@@ -49,10 +49,3 @@ class Block(nn.Module):
             if isinstance(m, BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.fill_(0)
-
-
-if __name__ == "__main__":
-    model = Block(64, 128)
-    model.to('cuda')
-    x = torch.Tensor(1, 128, 256, 256).cuda()
-    summary(model, x)
