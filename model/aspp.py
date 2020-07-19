@@ -5,20 +5,19 @@ import torch.optim as optim
 from torch.nn import Conv2d, ReLU, BatchNorm2d
 from torchsummaryX import summary
 
+from utils import ConvReluBatchnorm
+
 
 class _ASPPModule(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, padding=1, dilation=1):
         super(_ASPPModule, self).__init__()
 
-        self.atrous_conv = Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=1,
-                                  padding=padding, dilation=dilation, groups=1, bias=True)
-        self.relu = ReLU()
-        self.batchnorm = BatchNorm2d(out_channels)
+        self.crb = ConvReluBatchnorm(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size,
+                                           stride=1, padding=padding, dilation=dilation, bias=True, with_batchnorm=True,
+                                           with_relu=True)
 
     def forward(self, x):
-        x = self.atrous_conv(x)
-        x = self.relu(x)
-        x = self.batchnorm(x)
+        x = self.crb(x)
 
         return x
 

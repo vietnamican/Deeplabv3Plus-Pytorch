@@ -18,21 +18,35 @@ class ConvReluBatchnorm(nn.Module):
         else:
             self.conv = Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size,
                                stride=stride, padding=padding, dilation=dilation, bias=bias)
+        self.conv = Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size,
+                           stride=stride, padding=padding, dilation=dilation, bias=bias)
+        self.with_relu = False
         if with_relu:
-            if with_batchnorm:
-                self.crb_block = nn.Sequential(self.conv, ReLU(), BatchNorm2d(out_channels))
-            else:
-                self.cbr_block = nn.Sequential(self.conv, ReLU())
-        else:
-            if with_batchnorm:
-                self.crb_block = nn.Sequential(self.conv, BatchNorm2d(out_channels))
-            else:
-                self.crb_block = nn.Sequential(self.conv)
+            self.with_relu = True
+            self.relu = ReLU()
+
+        self.with_batchnorm = False
+        if with_batchnorm:
+            self.with_batchnorm = True
+            self.batchnorm = BatchNorm2d(out_channels)
 
         self._init_weight()
 
     def forward(self, x):
-        x = self.crb_block(x)
+        if self.with_relu:
+            if self.with_batchnorm:
+                x = self.conv(x)
+                x = self.relu(x)
+                x = self.batchnorm(x)
+            else:
+                x = self.conv(x)
+                x = self.relu(x)
+        else:
+            if self.with_batchnorm:
+                x = self.conv(x)
+                x = self.batchnorm(x)
+            else:
+                x = self.conv(x)
 
         return x
 
