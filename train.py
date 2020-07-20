@@ -133,7 +133,7 @@ class Trainer(object):
             with torch.no_grad():
                 output = self.model(image)
 
-            loss = self.criterion(output, target)
+            loss = self.criterion(output, target.long())
             test_loss += loss.item()
             tbar.set_description('Test loss: %.3f' % (test_loss / (i + 1)))
             pred = output.data.cpu().numpy()
