@@ -31,8 +31,8 @@ class Trainer(object):
         dlval = DLDataset('val', "./data/pascal_voc_seg/tfrecord/")
         # dltrain = DLDataset('trainval', "./data/pascal_voc_seg/VOCdevkit/VOC2012/")
         # dlval = DLDataset('val', "./data/pascal_voc_seg/VOCdevkit/VOC2012/")
-        self.train_loader = DataLoader(dltrain, batch_size=1, shuffle=True, num_workers=args.workers, pin_memory=True)
-        self.val_loader = DataLoader(dlval, batch_size=1, shuffle=True, num_workers=args.workers, pin_memory=True)
+        self.train_loader = DataLoader(dltrain, batch_size=args.batch_size, shuffle=True, num_workers=args.workers, pin_memory=True)
+        self.val_loader = DataLoader(dlval, batch_size=args.batch_size, shuffle=True, num_workers=args.workers, pin_memory=True)
 
         # Define network
         model = Deeplab()
