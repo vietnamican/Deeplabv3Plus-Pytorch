@@ -13,10 +13,8 @@ class Deeplab(nn.Module):
         super(Deeplab, self).__init__()
 
         self.encoder = Encoder()
-        self.decoder = Decoder(128, 20)
+        self.decoder = Decoder(128, 21)
         self.aspp = ASPP(2048, 256)
-
-        self._init_weight()
 
     def forward(self, input):
         x, low_level_feature = self.encoder(input)
@@ -26,10 +24,20 @@ class Deeplab(nn.Module):
 
         return x
 
-    def _init_weight(self):
-        for m in self.modules():
-            if isinstance(m, Conv2d):
-                nn.init.kaiming_normal_(m.weight, nonlinearity='relu')
-            if isinstance(m, BatchNorm2d):
-                m.weight.data.fill_(1)
-                m.bias.data.fill_(0)
+    def get_1x_lr_params(self):
+        modules = [self.encoder]
+        for i in range(len(modules)):
+            for m in modules[i].named_modules():
+                if isinstance(m[1], nn.Conv2d) or isinstance(m[1], nn.BatchNorm2d):
+                    for p in m[1].parameters():
+                        if p.requires_grad:
+                            yield p
+
+    def get_10x_lr_params(self):
+        modules = [self.aspp, self.decoder]
+        for i in range(len(modules)):
+            for m in modules[i].named_modules():
+                if isinstance(m[1], nn.Conv2d) or isinstance(m[1], nn.BatchNorm2d):
+                    for p in m[1].parameters():
+                        if p.requires_grad:
+                            yield p
