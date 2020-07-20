@@ -4,7 +4,7 @@ import random
 
 import cv2 as cv
 import numpy as np
-import tensorflow as tf
+from tensorflow import io
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
@@ -87,13 +87,13 @@ class DLDataset(Dataset):
         item = self.images[i]
 
         image = item['image/encoded']
-        image = tf.io.decode_image(image, 3)
+        image = io.decode_image(image, 3)
         image = image.numpy()
         # image = Image.fromarray(image)
         # image = self.transformer(image)
 
         mask = item['image/segmentation/class/encoded']
-        mask = tf.io.decode_image(mask, 1)
+        mask = io.decode_image(mask, 1)
         mask = mask.numpy()
         mask = mask.reshape(mask.shape[:2])
         # mask = torch.from_numpy(mask)
@@ -110,6 +110,9 @@ class DLDataset(Dataset):
         image, mask = safe_crop(image, mask, size=512)
         image = transforms.ToPILImage()(image.copy().astype(np.uint8))
         image = self.transformer(image)
+
+        mask = torch.from_numpy(mask)
+
         return image, mask
 
     def __len__(self):
@@ -120,7 +123,7 @@ class DLDataset(Dataset):
 if __name__ == "__main__":
     dltrain = DLDataset('val', "./data/pascal_voc_seg/tfrecord/")
     # dltrain = DLDataset('trainval', "./data/pascal_voc_seg/VOCdevkit/VOC2012/")
-    dataloader = DataLoader(dltrain, batch_size=1, shuffle=True)
+    dataloader = DataLoader(dltrain, batch_size=1, num_workers=8, shuffle=True)
     for image, mask in dataloader:
         image = image.numpy()
         image = image[0]

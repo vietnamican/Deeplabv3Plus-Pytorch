@@ -125,12 +125,14 @@ class Trainer(object):
         self.evaluator.reset()
         tbar = tqdm(self.val_loader, desc='\r')
         test_loss = 0.0
-        for i, sample in enumerate(tbar):
-            image, target = sample['image'], sample['label']
+        for i, (image, target) in enumerate(tbar):
+
             if self.args.cuda:
                 image, target = image.cuda(), target.cuda()
+
             with torch.no_grad():
                 output = self.model(image)
+
             loss = self.criterion(output, target)
             test_loss += loss.item()
             tbar.set_description('Test loss: %.3f' % (test_loss / (i + 1)))
